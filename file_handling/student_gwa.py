@@ -16,7 +16,7 @@ class Student:
         return self.gwa == other.gwa
 
     def __lt__(self, other):
-        return self.gwa > other.gwa
+        return self.gwa < other.gwa  # Lower GWA is better
 
     def is_honor_student(self, threshold=1.5):
         """Check if student is an honor student."""
@@ -42,12 +42,13 @@ class GWAAnalyzer:
                         gwa = parts[1].strip()
                         self.students.append(Student(name, gwa))
             print(f"✓ Loaded {len(self.students)} students")
+            return True
         except FileNotFoundError:
             print(f"✗ File {self.input_file} not found!")
-            raise
+            return False
         except ValueError as e:
             print(f"✗ Invalid GWA format - {e}")
-            raise
+            return False
 
     def calculate_rankings(self):
         """Calculate rankings based on GWA."""
@@ -57,10 +58,14 @@ class GWAAnalyzer:
 
     def get_highest_gwa_student(self):
         """Get student with highest GWA (lowest number)."""
+        if not self.students:
+            return None
         return min(self.students, key=lambda s: s.gwa)
 
     def get_lowest_gwa_student(self):
         """Get student with lowest GWA (highest number)."""
+        if not self.students:
+            return None
         return max(self.students, key=lambda s: s.gwa)
 
     def get_honor_students(self, threshold=1.5):
@@ -73,40 +78,79 @@ class GWAAnalyzer:
             return 0
         return sum(s.gwa for s in self.students) / len(self.students)
 
+    def display_highest_gwa(self):
+        """Display student with highest GWA."""
+        student = self.get_highest_gwa_student()
+        if student is None:
+            print("✗ No students loaded!")
+            return
+        print("\n" + "=" * 60)
+        print("STUDENT WITH HIGHEST GWA")
+        print("=" * 60)
+        print(f"Name: {student.name}")
+        print(f"GWA:  {student.gwa:.2f}")
+        print("=" * 60 + "\n")
+
     def display_top_students(self, top_n=5):
         """Display top N students."""
+        if not self.students:
+            print("✗ No students loaded!")
+            return
+
+        self.calculate_rankings()  # Ensure rankings are calculated
         sorted_students = sorted(self.students)
-        print(f"\n{'=' * 60}")
+        print(f"\n{'=' * 70}")
         print(f"TOP {top_n} STUDENTS BY GWA")
-        print(f"{'=' * 60}")
+        print(f"{'=' * 70}")
         print(f"{'Rank':<6} {'Name':<25} {'GWA':<10} {'Status':<15}")
-        print(f"{'-' * 60}")
+        print(f"{'-' * 70}")
         for student in sorted_students[:top_n]:
             status = "Honor Student" if student.is_honor_student() else "Regular"
             print(f"{student.rank:<6} {student.name:<25} {student.gwa:<10.2f} {status:<15}")
-        print(f"{'=' * 60}\n")
+        print(f"{'=' * 70}\n")
 
     def generate_full_report(self):
         """Generate a comprehensive report."""
-        self.calculate_rankings()
-        report_lines = ["=" * 70, "STUDENT GWA ANALYSIS REPORT",
-                        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "=" * 70, "",
-                        "SUMMARY STATISTICS", f"Total Students: {len(self.students)}",
-                        f"Average GWA: {self.get_average_gwa():.2f}",
-                        f"Highest GWA: {self.get_highest_gwa_student().gwa:.2f} ({self.get_highest_gwa_student().name})",
-                        f"Lowest GWA: {self.get_lowest_gwa_student().gwa:.2f} ({self.get_lowest_gwa_student().name})",
-                        f"Honor Students: {len(self.get_honor_students())}", "", "TOP 10 STUDENTS",
-                        f"{'Rank':<6} {'Name':<30} {'GWA':<10}", "-" * 70]
+        if not self.students:
+            print("✗ No students loaded! Cannot generate report.")
+            return
 
-        for student in sorted(self.students)[:10]:
+        self.calculate_rankings()
+
+        report_lines = []
+        report_lines.append("=" * 70)
+        report_lines.append("STUDENT GWA ANALYSIS REPORT")
+        report_lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report_lines.append("=" * 70)
+        report_lines.append("")
+
+        report_lines.append("SUMMARY STATISTICS")
+        report_lines.append(f"Total Students: {len(self.students)}")
+        report_lines.append(f"Average GWA: {self.get_average_gwa():.2f}")
+
+        highest_student = self.get_highest_gwa_student()
+        lowest_student = self.get_lowest_gwa_student()
+        report_lines.append(f"Highest GWA: {highest_student.gwa:.2f} ({highest_student.name})")
+        report_lines.append(f"Lowest GWA: {lowest_student.gwa:.2f} ({lowest_student.name})")
+        report_lines.append(f"Honor Students: {len(self.get_honor_students())}")
+        report_lines.append("")
+
+        report_lines.append("ALL STUDENTS (Ranked by GWA)")
+        report_lines.append(f"{'Rank':<6} {'Name':<30} {'GWA':<10}")
+        report_lines.append("-" * 70)
+        for student in sorted(self.students):
             report_lines.append(f"{student.rank:<6} {student.name:<30} {student.gwa:<10.2f}")
         report_lines.append("")
 
         report_lines.append("HONOR STUDENTS (GWA <= 1.5)")
         report_lines.append(f"{'Name':<30} {'GWA':<10}")
         report_lines.append("-" * 70)
-        for student in sorted(self.get_honor_students()):
-            report_lines.append(f"{student.name:<30} {student.gwa:<10.2f}")
+        honor_students = sorted(self.get_honor_students())
+        if honor_students:
+            for student in honor_students:
+                report_lines.append(f"{student.name:<30} {student.gwa:<10.2f}")
+        else:
+            report_lines.append("No honor students found.")
 
         report_lines.append("=" * 70)
 
@@ -118,7 +162,14 @@ class GWAAnalyzer:
 
 
 if __name__ == "__main__":
+    print("\n" + "=" * 60)
+    print("PROJECT 2: STUDENT GWA ANALYZER")
+    print("=" * 60)
+
     analyzer = GWAAnalyzer('students.txt')
-    analyzer.read_students()
-    analyzer.display_top_students(5)
-    analyzer.generate_full_report()
+    if analyzer.read_students():
+        analyzer.display_highest_gwa()
+        analyzer.display_top_students(5)
+        analyzer.generate_full_report()
+    else:
+        print("✗ Failed to load students. Please check the input file.")
