@@ -1,0 +1,35 @@
+======================================================================
+STUDENT GWA ANALYSIS REPORT
+Generated: 2026-04-30 05:23:48
+======================================================================
+
+SUMMARY STATISTICS
+Total Students: 10
+Average GWA: 1.58
+Highest GWA: 1.15 (Sophie Cruz)
+Lowest GWA: 2.00 (Gab Silang)
+Honor Students: 5
+
+ALL STUDENTS (Ranked by GWA)
+Rank   Name                           GWA       
+----------------------------------------------------------------------
+1      Sophie Cruz                    1.15      
+2      Jackie Batumbakal              1.25      
+3      Lisa Tagum                     1.35      
+4      Makisig Malakas                1.45      
+5      Juan Dela Cruz                 1.50      
+6      Jennifer Lopez                 1.55      
+7      Nicole Dimagiba                1.75      
+8      James Pamintuan                1.85      
+9      Robert Aquino                  1.95      
+10     Gab Silang                     2.00      
+
+HONOR STUDENTS (GWA <= 1.5)
+Name                           GWA       
+----------------------------------------------------------------------
+Sophie Cruz                    1.15      
+Jackie Batumbakal              1.25      
+Lisa Tagum                     1.35      
+Makisig Malakas                1.45      
+Juan Dela Cruz                 1.50      
+======================================================================
