@@ -1,38 +1,38 @@
 import os
 from datetime import datetime
 
-class NumberProcessor:
-    """Process numbers from a file and separate them into even and odd files"""
 
-    def _init_(self, input_file, even_file, odd_file, log_file=None):
+class NumberProcessor:
+    """Process numbers from a file and separate them into even and odd files."""
+
+    def __init__(self, input_file, even_file, odd_file, log_file=None):
         self.input_file = input_file
         self.even_file = even_file
         self.odd_file = odd_file
-        self.log_file = log_file
+        self.log_file = log_file or 'number_processor.log'
         self.numbers = []
         self.even_numbers = []
         self.odd_numbers = []
-        self.statistics={}
+        self.statistics = {}
 
     def read_numbers(self):
-        """Read the numbers from input file"""
+        """Read numbers from input file."""
         try:
-            with open(self.input_file,'r') as file:
-                self.numbers=[int(line.strip()) for line in file.readlines() if line.strip()]
-                self.log(f"Successfully read {len(self.numbers)} numbers from {self.input_file}")
+            with open(self.input_file, 'r') as file:
+                self.numbers = [int(line.strip()) for line in file.readlines() if line.strip()]
+            self.log(f"Successfully read {len(self.numbers)} numbers from {self.input_file}")
         except FileNotFoundError:
-            self.log(f"Error: File {self.input_file} not found")
+            self.log(f"ERROR: File {self.input_file} not found!")
             raise
         except ValueError as e:
-            self.log(f"Error: Invalid number format - {e}")
+            self.log(f"ERROR: Invalid number format - {e}")
             raise
 
     def separate_numbers(self):
-        """Split numbers into even and odd numbers"""
-        self.even_numbers=[num for num in self.numbers if num%2==0]
-        self.odd_numbers=[num for num in self.numbers if num%2!=0]
-        self.log(f"Separated: {len(self.even_numbers)} even,{len(self.odd_numbers)} odd")
-
+        """Separate numbers into even and odd."""
+        self.even_numbers = [num for num in self.numbers if num % 2 == 0]
+        self.odd_numbers = [num for num in self.numbers if num % 2 != 0]
+        self.log(f"Separated: {len(self.even_numbers)} even, {len(self.odd_numbers)} odd")
 
     def calculate_statistics(self):
         """Calculate statistics about the numbers."""
@@ -50,7 +50,8 @@ class NumberProcessor:
             'min_even': min(self.even_numbers) if self.even_numbers else None,
             'max_even': max(self.even_numbers) if self.even_numbers else None,
             'min_odd': min(self.odd_numbers) if self.odd_numbers else None,
-            'max_odd': max(self.odd_numbers) if self.odd_numbers else None,}
+            'max_odd': max(self.odd_numbers) if self.odd_numbers else None,
+        }
 
     def write_numbers(self):
         """Write separated numbers to output files."""
@@ -70,21 +71,21 @@ class NumberProcessor:
 
     def display_statistics(self):
         """Display statistics in a formatted way."""
-        print("\n" + "=" * 50)
+        print("\n" + "=" * 60)
         print("NUMBER PROCESSING STATISTICS")
-        print("=" * 50)
+        print("=" * 60)
         print(f"Total Numbers: {self.statistics['total_count']}")
         print(f"Even Numbers: {self.statistics['even_count']}")
         print(f"Odd Numbers: {self.statistics['odd_count']}")
-        print("\n--- EVEN NUMBERS ---")
+        print("\n--- EVEN NUMBERS ANALYSIS ---")
         print(f"Sum: {self.statistics['sum_even']}")
         print(f"Average: {self.statistics['avg_even']:.2f}")
         print(f"Min: {self.statistics['min_even']}, Max: {self.statistics['max_even']}")
-        print("\n--- ODD NUMBERS ---")
+        print("\n--- ODD NUMBERS ANALYSIS ---")
         print(f"Sum: {self.statistics['sum_odd']}")
         print(f"Average: {self.statistics['avg_odd']:.2f}")
         print(f"Min: {self.statistics['min_odd']}, Max: {self.statistics['max_odd']}")
-        print("=" * 50 + "\n")
+        print("=" * 60 + "\n")
 
     def log(self, message):
         """Log messages to file and console."""
@@ -104,6 +105,12 @@ class NumberProcessor:
         self.display_statistics()
         self.log("=== Processing completed ===\n")
 
-if __name__ == "_main_":
+
+# Main execution
+if __name__ == "__main__":
+    print("\n" + "=" * 60)
+    print("PROJECT 1: NUMBER SEPARATOR")
+    print("=" * 60)
+
     processor = NumberProcessor('numbers.txt', 'even.txt', 'odd.txt')
     processor.process()
