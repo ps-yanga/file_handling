@@ -13,6 +13,10 @@ class MathOperation(ABC):
     def get_name(self):
         pass
 
+    @abstractmethod
+    def get_symbol(self):
+        pass
+
 
 class SquareOperation(MathOperation):
     """Square operation for even numbers."""
@@ -22,6 +26,9 @@ class SquareOperation(MathOperation):
 
     def get_name(self):
         return "Square"
+
+    def get_symbol(self):
+        return "²"
 
 
 class CubeOperation(MathOperation):
@@ -33,17 +40,24 @@ class CubeOperation(MathOperation):
     def get_name(self):
         return "Cube"
 
+    def get_symbol(self):
+        return "³"
+
 
 class ProcessedNumber:
     """Represents a number and its processed result."""
 
-    def __init__(self, original, result, operation_name):
+    def __init__(self, original, result, operation_name, symbol):
         self.original = original
         self.result = result
         self.operation = operation_name
+        self.symbol = symbol
 
     def __repr__(self):
-        return f"{self.original} → {self.result} ({self.operation})"
+        return f"{self.original}{self.symbol} = {self.result}"
+
+    def format_detailed(self):
+        return f"{self.original} {self.symbol} = {self.result}"
 
 
 class IntegerProcessor:
@@ -67,7 +81,8 @@ class IntegerProcessor:
             print(f"✓ Read {len(self.numbers)} integers from {self.input_file}")
             return True
         except FileNotFoundError:
-            print(f"✗ File {self.input_file} not found!")
+            print(f"File {self.input_file} not found!")
+            print(f"Please create '{self.input_file}' with integers (one per line)")
             return False
         except ValueError:
             print("✗ Invalid integer format in file!")
@@ -81,13 +96,17 @@ class IntegerProcessor:
         for num in self.numbers:
             if num % 2 == 0:
                 result = square_op.apply(num)
-                self.processed_even.append(ProcessedNumber(num, result, square_op.get_name()))
+                self.processed_even.append(
+                    ProcessedNumber(num, result, square_op.get_name(), square_op.get_symbol())
+                )
             else:
                 result = cube_op.apply(num)
-                self.processed_odd.append(ProcessedNumber(num, result, cube_op.get_name()))
+                self.processed_odd.append(
+                    ProcessedNumber(num, result, cube_op.get_name(), cube_op.get_symbol())
+                )
 
-        print(f"✓ Processed {len(self.processed_even)} even numbers")
-        print(f"✓ Processed {len(self.processed_odd)} odd numbers")
+        print(f"✓ Processed {len(self.processed_even)} even numbers (squared)")
+        print(f"✓ Processed {len(self.processed_odd)} odd numbers (cubed)")
 
     def calculate_statistics(self):
         """Calculate statistics for processed numbers."""
@@ -102,7 +121,9 @@ class IntegerProcessor:
             'avg_even_square': sum(even_results) / len(even_results) if even_results else 0,
             'avg_odd_cube': sum(odd_results) / len(odd_results) if odd_results else 0,
             'max_even_square': max(even_results) if even_results else 0,
+            'min_even_square': min(even_results) if even_results else 0,
             'max_odd_cube': max(odd_results) if odd_results else 0,
+            'min_odd_cube': min(odd_results) if odd_results else 0,
         }
 
     def save_results(self):
@@ -112,17 +133,17 @@ class IntegerProcessor:
                 file.write(f"# Squares of Even Numbers (Generated: {self.timestamp})\n")
                 file.write(f"# Total: {len(self.processed_even)}\n\n")
                 for processed in self.processed_even:
-                    file.write(f"{processed.original}² = {processed.result}\n")
-            print(f"✓ Saved even squares to {self.even_output_file}")
+                    file.write(f"{processed.format_detailed()}\n")
+            print(f" Saved even squares to {self.even_output_file}")
 
             with open(self.odd_output_file, 'w') as file:
                 file.write(f"# Cubes of Odd Numbers (Generated: {self.timestamp})\n")
                 file.write(f"# Total: {len(self.processed_odd)}\n\n")
                 for processed in self.processed_odd:
-                    file.write(f"{processed.original}³ = {processed.result}\n")
-            print(f"✓ Saved odd cubes to {self.odd_output_file}")
+                    file.write(f"{processed.format_detailed()}\n")
+            print(f" Saved odd cubes to {self.odd_output_file}")
         except IOError as e:
-            print(f"✗ Error saving files: {e}")
+            print(f" Error saving files: {e}")
             return False
         return True
 
@@ -131,24 +152,26 @@ class IntegerProcessor:
         print("\n" + "=" * 70)
         print("INTEGER PROCESSING SUMMARY")
         print("=" * 70)
-        print(f"\nINPUT: {self.input_file}")
+        print(f"\nINPUT FILE: {self.input_file}")
         print(f"Total Numbers Processed: {len(self.numbers)}")
 
-        print(f"\nEVEN NUMBERS (Squared):")
+        print(f"\n EVEN NUMBERS (Squared):")
         print(f"  Count: {self.statistics['total_even']}")
-        print(f"  Sum of Squares: {self.statistics['sum_even_squares']}")
-        print(f"  Average Square: {self.statistics['avg_even_square']:.2f}")
-        print(f"  Maximum Square: {self.statistics['max_even_square']}")
-        print(f"  Output File: {self.even_output_file}")
+        print(f"  Sum: {self.statistics['sum_even_squares']}")
+        print(f"  Average: {self.statistics['avg_even_square']:.2f}")
+        print(f"  Min: {self.statistics['min_even_square']}")
+        print(f"  Max: {self.statistics['max_even_square']}")
+        print(f"  Output: {self.even_output_file}")
 
-        print(f"\nODD NUMBERS (Cubed):")
+        print(f"\n ODD NUMBERS (Cubed):")
         print(f"  Count: {self.statistics['total_odd']}")
-        print(f"  Sum of Cubes: {self.statistics['sum_odd_cubes']}")
-        print(f"  Average Cube: {self.statistics['avg_odd_cube']:.2f}")
-        print(f"  Maximum Cube: {self.statistics['max_odd_cube']}")
-        print(f"  Output File: {self.odd_output_file}")
+        print(f"  Sum: {self.statistics['sum_odd_cubes']}")
+        print(f"  Average: {self.statistics['avg_odd_cube']:.2f}")
+        print(f"  Min: {self.statistics['min_odd_cube']}")
+        print(f"  Max: {self.statistics['max_odd_cube']}")
+        print(f"  Output: {self.odd_output_file}")
 
-        print(f"\nTIMESTAMP: {self.timestamp}")
+        print(f"\n TIMESTAMP: {self.timestamp}")
         print("=" * 70 + "\n")
 
     def run(self):
@@ -168,8 +191,9 @@ class IntegerProcessor:
 
 if __name__ == "__main__":
     processor = IntegerProcessor(
-        input_file="numbers.txt",
+        input_file="integers.txt",
         even_output_file="even_squares.txt",
         odd_output_file="odd_cubes.txt"
     )
-    processor.run()
+    success = processor.run()
+    exit(0 if success else 1)
