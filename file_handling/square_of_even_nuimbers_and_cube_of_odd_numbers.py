@@ -192,8 +192,8 @@ class IntegerProcessor:
 if __name__ == "__main__":
     processor = IntegerProcessor(
         input_file="integers.txt",
-        even_output_file="even_squares.txt",
-        odd_output_file="odd_cubes.txt"
+        even_output_file="double.txt",
+        odd_output_file="triple.txt"
     )
     success = processor.run()
     exit(0 if success else 1)
